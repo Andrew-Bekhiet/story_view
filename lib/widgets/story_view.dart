@@ -339,12 +339,11 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         children: <Widget>[
           _currentView,
           Positioned(
-            top: 150.0,
-            left: 80.0,
+            top: 100.0,
+            left: 70.0,
             child: Text(
               '${widget.storyItems[index]?.createdAt}',
               style: TextStyle(
-                fontSize: 10.0,
                 decoration: TextDecoration.none,
                 color: Colors.white60,
               ),
