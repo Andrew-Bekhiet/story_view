@@ -1,7 +1,7 @@
 name: story_view
 description: Display stories just like Whatsapp & Instagram. Can be used inline/inside ListView or Column just like Google News app. Comes with gestures to pause, forward & go to previous page.
 version: 0.13.1
-homepage: https://github.com/blackmann/story_view
+homepage: https://github.com/JaimonRamanan/story_view.git
 
 environment:
   sdk: ">=2.12.0 <3.0.0"

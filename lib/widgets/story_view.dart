@@ -17,359 +17,35 @@ enum ProgressPosition { top, bottom }
 /// should use [small]
 enum IndicatorHeight { small, large }
 
-/// This is a representation of a story item (or page).
 class StoryItem {
-  /// Specifies how long the page should be displayed. It should be a reasonable
-  /// amount of time greater than 0 milliseconds.
-  final Duration duration;
-
-  /// Has this page been shown already? This is used to indicate that the page
-  /// has been displayed. If some pages are supposed to be skipped in a story,
-  /// mark them as shown `shown = true`.
-  ///
-  /// However, during initialization of the story view, all pages after the
-  /// last unshown page will have their `shown` attribute altered to false. This
-  /// is because the next item to be displayed is taken by the last unshown
-  /// story item.
   bool shown;
 
-  /// The page content
-  final Widget view;
+  final int storyId;
+  final String profileName;
+  final String profileDp;
+  final String url;
+  final String eventName;
+  final String createdAt;
+  final int viewsCount;
+  final StoryController controller;
+  final Duration duration;
+  final Function onViewTap;
+  final Function onOptionTap;
   StoryItem(
-    this.view, {
-    required this.duration,
-    this.shown = false,
-  }) : assert(duration != null, "[duration] should not be null");
-
-  /// Short hand to create text-only page.
-  ///
-  /// [title] is the text to be displayed on [backgroundColor]. The text color
-  /// alternates between [Colors.black] and [Colors.white] depending on the
-  /// calculated contrast. This is to ensure readability of text.
-  ///
-  /// Works for inline and full-page stories. See [StoryView.inline] for more on
-  /// what inline/full-page means.
-  static StoryItem text({
-    required String title,
-    required Color backgroundColor,
-    Key? key,
-    TextStyle? textStyle,
-    bool shown = false,
-    bool roundedTop = false,
-    bool roundedBottom = false,
-    Duration? duration,
-  }) {
-    double contrast = ContrastHelper.contrast([
-      backgroundColor.red,
-      backgroundColor.green,
-      backgroundColor.blue,
-    ], [
-      255,
-      255,
-      255
-    ] /** white text */);
-
-    return StoryItem(
-      Container(
-        key: key,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(roundedTop ? 8 : 0),
-            bottom: Radius.circular(roundedBottom ? 8 : 0),
-          ),
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 16,
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: textStyle?.copyWith(
-                  color: contrast > 1.8 ? Colors.white : Colors.black,
-                ) ??
-                TextStyle(
-                  color: contrast > 1.8 ? Colors.white : Colors.black,
-                  fontSize: 18,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        //color: backgroundColor,
-      ),
-      shown: shown,
-      duration: duration ?? Duration(seconds: 3),
-    );
-  }
-
-  /// Factory constructor for page images. [controller] should be same instance as
-  /// one passed to the `StoryView`
-  factory StoryItem.pageImage({
-    required String url,
-    required StoryController controller,
-    Key? key,
-    BoxFit imageFit = BoxFit.fitWidth,
-    String? caption,
-    bool shown = false,
-    Map<String, dynamic>? requestHeaders,
-    Duration? duration,
-  }) {
-    return StoryItem(
-      Container(
-        key: key,
-        color: Colors.black,
-        child: Stack(
-          children: <Widget>[
-            StoryImage.url(
-              url,
-              controller: controller,
-              fit: imageFit,
-              requestHeaders: requestHeaders,
-            ),
-            SafeArea(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.only(
-                    bottom: 24,
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 8,
-                  ),
-                  color: caption != null ? Colors.black54 : Colors.transparent,
-                  child: caption != null
-                      ? Text(
-                          caption,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        )
-                      : SizedBox(),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-      shown: shown,
-      duration: duration ?? Duration(seconds: 3),
-    );
-  }
-
-  /// Shorthand for creating inline image. [controller] should be same instance as
-  /// one passed to the `StoryView`
-  factory StoryItem.inlineImage({
-    required String url,
-    required Text caption,
-    required StoryController controller,
-    Key? key,
-    BoxFit imageFit = BoxFit.cover,
-    Map<String, dynamic>? requestHeaders,
-    bool shown = false,
-    bool roundedTop = true,
-    bool roundedBottom = false,
-    Duration? duration,
-  }) {
-    return StoryItem(
-      ClipRRect(
-        key: key,
-        child: Container(
-          color: Colors.grey[100],
-          child: Container(
-            color: Colors.black,
-            child: Stack(
-              children: <Widget>[
-                StoryImage.url(
-                  url,
-                  controller: controller,
-                  fit: imageFit,
-                  requestHeaders: requestHeaders,
-                ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 16),
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      child: caption == null ? SizedBox() : caption,
-                      width: double.infinity,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(roundedTop ? 8 : 0),
-          bottom: Radius.circular(roundedBottom ? 8 : 0),
-        ),
-      ),
-      shown: shown,
-      duration: duration ?? Duration(seconds: 3),
-    );
-  }
-
-  /// Shorthand for creating page video. [controller] should be same instance as
-  /// one passed to the `StoryView`
-  factory StoryItem.pageVideo(
-    String url, {
-    required StoryController controller,
-    Key? key,
-    Duration? duration,
-    BoxFit imageFit = BoxFit.fitWidth,
-    String? caption,
-    bool shown = false,
-    Map<String, dynamic>? requestHeaders,
-  }) {
-    return StoryItem(
-        Container(
-          key: key,
-          color: Colors.black,
-          child: Stack(
-            children: <Widget>[
-              StoryVideo.url(
-                url,
-                controller: controller,
-                requestHeaders: requestHeaders,
-              ),
-              SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.only(bottom: 24),
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    color:
-                        caption != null ? Colors.black54 : Colors.transparent,
-                    child: caption != null
-                        ? Text(
-                            caption,
-                            style: TextStyle(fontSize: 15, color: Colors.white),
-                            textAlign: TextAlign.center,
-                          )
-                        : SizedBox(),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        shown: shown,
-        duration: duration ?? Duration(seconds: 10));
-  }
-
-  /// Shorthand for creating a story item from an image provider such as `AssetImage`
-  /// or `NetworkImage`. However, the story continues to play while the image loads
-  /// up.
-  factory StoryItem.pageProviderImage(
-    ImageProvider image, {
-    Key? key,
-    BoxFit imageFit = BoxFit.fitWidth,
-    String? caption,
-    bool shown = false,
-    Duration? duration,
-  }) {
-    assert(imageFit != null, "[imageFit] should not be null");
-    return StoryItem(
-        Container(
-          key: key,
-          color: Colors.black,
-          child: Stack(
-            children: <Widget>[
-              Center(
-                child: Image(
-                  image: image,
-                  height: double.infinity,
-                  width: double.infinity,
-                  fit: imageFit,
-                ),
-              ),
-              SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.only(
-                      bottom: 24,
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 8,
-                    ),
-                    color:
-                        caption != null ? Colors.black54 : Colors.transparent,
-                    child: caption != null
-                        ? Text(
-                            caption,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                            ),
-                            textAlign: TextAlign.center,
-                          )
-                        : SizedBox(),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        shown: shown,
-        duration: duration ?? Duration(seconds: 3));
-  }
-
-  /// Shorthand for creating an inline story item from an image provider such as `AssetImage`
-  /// or `NetworkImage`. However, the story continues to play while the image loads
-  /// up.
-  factory StoryItem.inlineProviderImage(
-    ImageProvider image, {
-    Key? key,
-    Text? caption,
-    bool shown = false,
-    bool roundedTop = true,
-    bool roundedBottom = false,
-    Duration? duration,
-  }) {
-    return StoryItem(
-      Container(
-        key: key,
-        decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(roundedTop ? 8 : 0),
-              bottom: Radius.circular(roundedBottom ? 8 : 0),
-            ),
-            image: DecorationImage(
-              image: image,
-              fit: BoxFit.cover,
-            )),
-        child: Container(
-          margin: EdgeInsets.only(
-            bottom: 16,
-          ),
-          padding: EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 8,
-          ),
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Container(
-              child: caption == null ? SizedBox() : caption,
-              width: double.infinity,
-            ),
-          ),
-        ),
-      ),
-      shown: shown,
-      duration: duration ?? Duration(seconds: 3),
-    );
-  }
+      {Widget? view,
+      required this.onViewTap,
+      required this.onOptionTap,
+      required this.duration,
+      required this.storyId,
+      required this.controller,
+      required this.profileName,
+      required this.profileDp,
+      required this.url,
+      required this.eventName,
+      required this.createdAt,
+      required this.viewsCount,
+      this.shown = false})
+      : assert(duration != null, "[duration] should not be null");
 }
 
 /// Widget to display stories just like Whatsapp and Instagram. Can also be used
@@ -405,10 +81,12 @@ class StoryView extends StatefulWidget {
 
   // Controls the playback of the stories
   final StoryController controller;
+  final bool isCreator;
 
   StoryView({
     required this.storyItems,
     required this.controller,
+    required this.isCreator,
     this.onComplete,
     this.onStoryShow,
     this.progressPosition = ProgressPosition.top,
@@ -434,6 +112,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   AnimationController? _animationController;
   Animation<double>? _currentAnimation;
   Timer? _nextDebouncer;
+  int index = 0;
 
   StreamSubscription<PlaybackState>? _playbackSubscription;
 
@@ -446,7 +125,18 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   Widget get _currentView {
     var item = widget.storyItems.firstWhereOrNull((it) => !it!.shown);
     item ??= widget.storyItems.last;
-    return item?.view ?? Container();
+    return item!.url.contains('.mp4')
+        ? StoryVideo.url(
+            item.url,
+            controller: item.controller,
+            // requestHeaders: item?.requestHeaders,
+          )
+        : StoryImage(
+            ImageLoader(
+              item.url,
+            ),
+            fit: BoxFit.contain,
+          );
   }
 
   @override
@@ -531,6 +221,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         storyItem.shown = true;
         if (widget.storyItems.last != storyItem) {
           _beginPlay();
+          _incrementIndex();
         } else {
           // done playing
           _onComplete();
@@ -549,10 +240,27 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     _play();
   }
 
+  void _incrementIndex() {
+    setState(() {
+      index++;
+    });
+    print('Index is: $index');
+  }
+
+  void _decrementIndex() {
+    if (index != 0) {
+      setState(() {
+        index--;
+      });
+    }
+    print('Index is: $index');
+  }
+
   void _onComplete() {
     if (widget.onComplete != null) {
       widget.controller.pause();
       widget.onComplete!();
+      _incrementIndex();
     }
 
     if (widget.repeat) {
@@ -570,6 +278,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     if (this._currentStory == null) {
       widget.storyItems.last!.shown = false;
     }
+    _decrementIndex();
 
     if (this._currentStory == widget.storyItems.first) {
       _beginPlay();
@@ -585,6 +294,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   }
 
   void _goForward() {
+    _animationController!.stop();
+
     if (this._currentStory != widget.storyItems.last) {
       _animationController!.stop();
 
@@ -595,6 +306,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         _last.shown = true;
         if (_last != widget.storyItems.last) {
           _beginPlay();
+          _incrementIndex();
         }
       }
     } else {
@@ -622,10 +334,21 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Colors.black,
       child: Stack(
         children: <Widget>[
           _currentView,
+          Positioned(
+            top: 70.0,
+            left: 80.0,
+            child: Text(
+              '${widget.storyItems[index]?.createdAt}',
+              style: TextStyle(
+                  fontSize: 10.0,
+                  decoration: TextDecoration.none,
+                  color: Colors.white),
+            ),
+          ),
           Align(
             alignment: widget.progressPosition == ProgressPosition.top
                 ? Alignment.topCenter
@@ -652,8 +375,10 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
             ),
           ),
           Align(
-              alignment: Alignment.centerRight,
-              heightFactor: 1,
+            alignment: Alignment.centerRight,
+            heightFactor: 1,
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.9,
               child: GestureDetector(
                 onTapDown: (details) {
                   widget.controller.pause();
@@ -703,16 +428,86 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
 
                         verticalDragInfo = null;
                       },
-              )),
-          Align(
-            alignment: Alignment.centerLeft,
-            heightFactor: 1,
-            child: SizedBox(
-                child: GestureDetector(onTap: () {
-                  widget.controller.previous();
-                }),
-                width: 70),
+              ),
+            ),
           ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              heightFactor: 1,
+              child: SizedBox(
+                child: GestureDetector(
+                  onTap: () {
+                    widget.controller.previous();
+                  },
+                ),
+                width: 70,
+              ),
+            ),
+          ),
+          widget.isCreator
+              ? Positioned(
+                  bottom: 30.0,
+                  right: 20.0,
+                  child: InkWell(
+                    onTap: () {
+                      print('Working');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(25.0),
+                      ),
+                      child: Icon(
+                        Icons.more_horiz,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
+          widget.isCreator
+              ? Positioned(
+                  bottom: 30.0,
+                  left: 20.0,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      print('Working');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(25.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Icon(
+                            Icons.visibility_outlined,
+                            size: 17.0,
+                            color: Colors.white60,
+                          ),
+                          const SizedBox(
+                            width: 2.0,
+                            height: 10.0,
+                          ),
+                          Text(
+                            '${widget.storyItems[index]?.viewsCount}',
+                            style:
+                                Theme.of(context).textTheme.bodyText1!.copyWith(
+                                      color: Colors.white60,
+                                    ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
@@ -785,7 +580,7 @@ class PageBarState extends State<PageBar> {
             child: StoryProgressIndicator(
               isPlaying(it) ? widget.animation!.value : (it.shown ? 1 : 0),
               indicatorHeight:
-                  widget.indicatorHeight == IndicatorHeight.large ? 5 : 3,
+                  widget.indicatorHeight == IndicatorHeight.large ? 3 : 2,
             ),
           ),
         );
