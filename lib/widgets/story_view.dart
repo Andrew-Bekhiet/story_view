@@ -339,14 +339,15 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         children: <Widget>[
           _currentView,
           Positioned(
-            top: 70.0,
+            top: 150.0,
             left: 80.0,
             child: Text(
               '${widget.storyItems[index]?.createdAt}',
               style: TextStyle(
-                  fontSize: 10.0,
-                  decoration: TextDecoration.none,
-                  color: Colors.white),
+                fontSize: 10.0,
+                decoration: TextDecoration.none,
+                color: Colors.white60,
+              ),
             ),
           ),
           Align(
@@ -451,7 +452,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                   bottom: 30.0,
                   right: 20.0,
                   child: InkWell(
-                    onTap:()=> widget.storyItems[index]?.onOptionTap(),
+                    onTap: () => widget.storyItems[index]?.onOptionTap(),
                     child: Container(
                       padding: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
@@ -472,7 +473,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                   left: 20.0,
                   child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
-                    onTap: ()=> widget.storyItems[index]?.onViewTap(),
+                    onTap: () => widget.storyItems[index]?.onViewTap(),
                     child: Container(
                       padding: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
