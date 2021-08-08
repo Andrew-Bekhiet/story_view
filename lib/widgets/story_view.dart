@@ -221,7 +221,6 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         storyItem.shown = true;
         if (widget.storyItems.last != storyItem) {
           _beginPlay();
-          _incrementIndex();
         } else {
           // done playing
           _onComplete();
