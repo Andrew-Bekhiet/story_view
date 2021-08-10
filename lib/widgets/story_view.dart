@@ -240,9 +240,13 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   }
 
   void _incrementIndex() {
-    setState(() {
-      index++;
-    });
+    index != widget.storyItems.length - 1
+        ? setState(
+            () {
+              index++;
+            },
+          )
+        : '';
     print('Index is: $index');
   }
 
