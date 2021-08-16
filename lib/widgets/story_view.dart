@@ -341,7 +341,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         children: <Widget>[
           _currentView,
           Positioned(
-            top: 85.0,
+            top: 95.0,
             left: 71.0,
             child: Text(
               '${widget.storyItems[index]?.createdAt}',
