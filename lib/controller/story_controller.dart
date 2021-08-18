@@ -1,4 +1,5 @@
 import 'package:rxdart/rxdart.dart';
+import 'package:story_view/utils.dart';
 
 enum PlaybackState { pause, play, next, previous }
 
@@ -8,6 +9,17 @@ enum PlaybackState { pause, play, next, previous }
 /// Another reason for using the controller is to place the stories on `paused`
 /// state when a media is loading.
 class StoryController {
+  // ignore: close_sinks
+  final storyState = BehaviorSubject<LoadState>();
+
+  void stateTrue() {
+    storyState.add(LoadState.loading);
+  }
+
+  void stateFalse() {
+    storyState.add(LoadState.success);
+  }
+
   /// Stream that broadcasts the playback state of the stories.
   final playbackNotifier = BehaviorSubject<PlaybackState>();
 

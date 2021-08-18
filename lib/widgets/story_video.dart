@@ -14,24 +14,32 @@ class VideoLoader {
   File? videoFile;
 
   Map<String, dynamic>? requestHeaders;
+  StoryController? controller;
 
   LoadState state = LoadState.loading;
 
-  VideoLoader(this.url, {this.requestHeaders});
+  VideoLoader(this.url, {this.requestHeaders, required this.controller});
 
   void loadVideo(VoidCallback onComplete) {
     if (this.videoFile != null) {
       this.state = LoadState.success;
+      if (this.state == LoadState.success) {
+        controller?.stateFalse();
+      }
       onComplete();
     }
+    controller?.stateTrue();
 
-    final fileStream = DefaultCacheManager()
-        .getFileStream(this.url, headers: this.requestHeaders as Map<String, String>?);
+    final fileStream = DefaultCacheManager().getFileStream(this.url,
+        headers: this.requestHeaders as Map<String, String>?);
 
     fileStream.listen((fileResponse) {
       if (fileResponse is FileInfo) {
         if (this.videoFile == null) {
           this.state = LoadState.success;
+          if (this.state == LoadState.success) {
+            controller?.stateFalse();
+          }
           this.videoFile = fileResponse.file;
           onComplete();
         }
@@ -52,7 +60,7 @@ class StoryVideo extends StatefulWidget {
       Map<String, dynamic>? requestHeaders,
       Key? key}) {
     return StoryVideo(
-      VideoLoader(url, requestHeaders: requestHeaders),
+      VideoLoader(url, requestHeaders: requestHeaders, controller: controller),
       storyController: controller,
       key: key,
     );

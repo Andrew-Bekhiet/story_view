@@ -126,14 +126,18 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     var item = widget.storyItems.firstWhereOrNull((it) => !it!.shown);
     item ??= widget.storyItems.last;
     return item!.url.contains('.mp4')
-        ? StoryVideo.url(
-            item.url,
-            controller: item.controller,
+        ? StoryVideo(
+            VideoLoader(
+              item.url,
+              controller: item.controller,
+            ),
+            storyController: item.controller,
             // requestHeaders: item?.requestHeaders,
           )
         : StoryImage(
             ImageLoader(
               item.url,
+              controller: item.controller,
             ),
             fit: BoxFit.contain,
           );
@@ -369,6 +373,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                       .toList(),
                   this._currentAnimation,
                   key: UniqueKey(),
+                  controller: widget.controller,
                   indicatorHeight: widget.inline
                       ? IndicatorHeight.small
                       : IndicatorHeight.large,
@@ -527,12 +532,14 @@ class PageBar extends StatefulWidget {
   final List<PageData> pages;
   final Animation<double>? animation;
   final IndicatorHeight indicatorHeight;
+  final StoryController controller;
 
   PageBar(
     this.pages,
     this.animation, {
     this.indicatorHeight = IndicatorHeight.large,
     Key? key,
+    required this.controller,
   }) : super(key: key);
 
   @override
@@ -543,14 +550,17 @@ class PageBar extends StatefulWidget {
 
 class PageBarState extends State<PageBar> {
   double spacing = 4;
-
+  LoadState state = LoadState.failure;
   @override
   void initState() {
     super.initState();
-
     int count = widget.pages.length;
     spacing = (count > 15) ? 1 : ((count > 10) ? 2 : 4);
-
+    widget.controller.storyState.listen((value) {
+      setState(() {
+        state = value;
+      });
+    });
     widget.animation!.addListener(() {
       setState(() {});
     });
@@ -576,7 +586,11 @@ class PageBarState extends State<PageBar> {
             padding: EdgeInsets.only(
                 right: widget.pages.last == it ? 0 : this.spacing),
             child: StoryProgressIndicator(
-              isPlaying(it) ? widget.animation!.value : (it.shown ? 1 : 0),
+              isPlaying(it)
+                  ? state == LoadState.success
+                      ? widget.animation!.value
+                      : 0
+                  : (it.shown ? 1 : 0),
               indicatorHeight:
                   widget.indicatorHeight == IndicatorHeight.large ? 3 : 2,
             ),

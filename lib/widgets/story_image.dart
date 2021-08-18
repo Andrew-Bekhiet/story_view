@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
 import '../utils.dart';
 import '../controller/story_controller.dart';
 
@@ -19,15 +18,20 @@ class ImageLoader {
 
   LoadState state = LoadState.loading; // by default
 
-  ImageLoader(this.url, {this.requestHeaders});
+  ImageLoader(this.url, {this.controller, this.requestHeaders});
+  final StoryController? controller;
 
   /// Load image from disk cache first, if not found then load from network.
   /// `onComplete` is called when [imageBytes] become available.
   void loadImage(VoidCallback onComplete) {
     if (this.frames != null) {
       this.state = LoadState.success;
+      if (this.state == LoadState.success) {
+        controller?.stateFalse();
+      }
       onComplete();
     }
+    controller?.stateTrue();
 
     final fileStream = DefaultCacheManager().getFileStream(this.url,
         headers: this.requestHeaders as Map<String, String>?);
@@ -45,6 +49,10 @@ class ImageLoader {
         final imageBytes = fileResponse.file.readAsBytesSync();
 
         this.state = LoadState.success;
+
+        if (this.state == LoadState.success) {
+          controller?.stateFalse();
+        }
 
         PaintingBinding.instance!.instantiateImageCodec(imageBytes).then(
             (codec) {
@@ -186,6 +194,7 @@ class StoryImageState extends State<StoryImage> {
           image: this.currentFrame,
           fit: widget.fit,
         );
+
       case LoadState.failure:
         return Center(
             child: Text(
