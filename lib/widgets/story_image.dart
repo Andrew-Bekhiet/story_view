@@ -25,13 +25,8 @@ class ImageLoader {
   /// `onComplete` is called when [imageBytes] become available.
   void loadImage(VoidCallback onComplete) {
     if (this.frames != null) {
-      // this.state = LoadState.success;
-      // if (this.state == LoadState.success) {
-      //   controller?.stateFalse();
-      // }
       onComplete();
     }
-    controller?.stateTrue();
 
     final fileStream = DefaultCacheManager().getFileStream(this.url,
         headers: this.requestHeaders as Map<String, String>?);
@@ -47,16 +42,13 @@ class ImageLoader {
         }
 
         final imageBytes = fileResponse.file.readAsBytesSync();
-        print('State is : ${this.state}');
-
-        this.state = LoadState.success;
-        if (this.state == LoadState.success) {
-          controller?.stateFalse();
-        }
 
         PaintingBinding.instance!.instantiateImageCodec(imageBytes).then(
             (codec) {
+          print('Entered');
           this.frames = codec;
+          this.state = LoadState.success;
+          controller!.stateFalse();
           onComplete();
         }, onError: (error) {
           this.state = LoadState.failure;
