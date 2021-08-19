@@ -58,6 +58,8 @@ class StoryView extends StatefulWidget {
   /// Callback for when a full cycle of story is shown. This will be called
   /// each time the full story completes when [repeat] is set to `true`.
   final VoidCallback? onComplete;
+  final VoidCallback? onLeftSwipe;
+  final VoidCallback? onRightSwipe;
 
   /// Callback for when a vertical swipe gesture is detected. If you do not
   /// want to listen to such event, do not provide it. For instance,
@@ -93,6 +95,8 @@ class StoryView extends StatefulWidget {
     this.repeat = false,
     this.inline = false,
     this.onVerticalSwipeComplete,
+    this.onLeftSwipe,
+    this.onRightSwipe,
   })  : assert(storyItems != null && storyItems.length > 0,
             "[storyItems] should not be null or empty"),
         assert(progressPosition != null, "[progressPosition] cannot be null"),
@@ -390,6 +394,21 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 } else if (details.delta.dy < 0) {
                   // Up Swipe
                   Navigator.pop(context);
+                }
+              },
+              onHorizontalDragUpdate: (details) {
+                if (details.delta.dx > 0) {
+                  // Right Swipe
+                  if (widget.onRightSwipe != null) {
+                    print('Right Swipe');
+                    widget.onRightSwipe!();
+                  }
+                } else if (details.delta.dx < 0) {
+                  // Left Swipe
+                  if (widget.onLeftSwipe != null) {
+                    print('Left Swipe');
+                    widget.onLeftSwipe!();
+                  }
                 }
               },
             ),
