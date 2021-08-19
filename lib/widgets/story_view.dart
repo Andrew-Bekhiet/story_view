@@ -401,13 +401,19 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                   // Right Swipe
                   if (widget.onRightSwipe != null) {
                     print('Right Swipe');
+                    _animationController!.stop();
                     widget.onRightSwipe!();
+                    _animationController!
+                        .animateTo(1.0, duration: Duration(milliseconds: 10));
                   }
                 } else if (details.delta.dx < 0) {
                   // Left Swipe
                   if (widget.onLeftSwipe != null) {
                     print('Left Swipe');
+                    _animationController!.stop();
                     widget.onLeftSwipe!();
+                    _animationController!
+                        .animateTo(1.0, duration: Duration(milliseconds: 10));
                   }
                 }
               },
