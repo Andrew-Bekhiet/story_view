@@ -25,7 +25,7 @@ class ImageLoader {
   /// `onComplete` is called when [imageBytes] become available.
   void loadImage(VoidCallback onComplete) {
     if (this.frames != null) {
-      this.state = LoadState.success;
+      // this.state = LoadState.success;
       if (this.state == LoadState.success) {
         controller?.stateFalse();
       }
@@ -49,7 +49,6 @@ class ImageLoader {
         final imageBytes = fileResponse.file.readAsBytesSync();
 
         this.state = LoadState.success;
-
         if (this.state == LoadState.success) {
           controller?.stateFalse();
         }
