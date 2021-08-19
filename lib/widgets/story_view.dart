@@ -60,6 +60,8 @@ class StoryView extends StatefulWidget {
   final VoidCallback? onComplete;
   final VoidCallback? onLeftSwipe;
   final VoidCallback? onRightSwipe;
+  final VoidCallback? onLeftTap;
+  final VoidCallback? onRightTap;
 
   /// Callback for when a vertical swipe gesture is detected. If you do not
   /// want to listen to such event, do not provide it. For instance,
@@ -97,6 +99,8 @@ class StoryView extends StatefulWidget {
     this.onVerticalSwipeComplete,
     this.onLeftSwipe,
     this.onRightSwipe,
+    this.onLeftTap,
+    this.onRightTap,
   })  : assert(storyItems != null && storyItems.length > 0,
             "[storyItems] should not be null or empty"),
         assert(progressPosition != null, "[progressPosition] cannot be null"),
@@ -437,6 +441,11 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                     widget.controller.play();
                   } else {
                     widget.controller.next();
+                    if (index == widget.storyItems.length - 1) {
+                      if (widget.onRightTap != null) {
+                        widget.onRightTap!();
+                      }
+                    }
                   }
                 },
                 onVerticalDragStart: widget.onVerticalSwipeComplete == null
@@ -485,6 +494,11 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 child: GestureDetector(
                   onTap: () {
                     widget.controller.previous();
+                     if (index ==0) {
+                      if (widget.onLeftTap != null) {
+                        widget.onLeftTap!();
+                      }
+                    }
                   },
                 ),
                 width: 70,
