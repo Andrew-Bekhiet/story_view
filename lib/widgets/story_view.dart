@@ -382,6 +382,19 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
             ),
           ),
           Align(
+            alignment: Alignment.center,
+            child: GestureDetector(
+              onVerticalDragUpdate: (details) {
+                if (details.delta.dy > 0) {
+                  // Down Swipe
+                } else if (details.delta.dy < 0) {
+                  // Up Swipe
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ),
+          Align(
             alignment: Alignment.centerRight,
             heightFactor: 1,
             child: SizedBox(
