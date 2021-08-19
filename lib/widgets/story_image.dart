@@ -26,9 +26,9 @@ class ImageLoader {
   void loadImage(VoidCallback onComplete) {
     if (this.frames != null) {
       // this.state = LoadState.success;
-      if (this.state == LoadState.success) {
-        controller?.stateFalse();
-      }
+      // if (this.state == LoadState.success) {
+      //   controller?.stateFalse();
+      // }
       onComplete();
     }
     controller?.stateTrue();
@@ -48,10 +48,10 @@ class ImageLoader {
 
         final imageBytes = fileResponse.file.readAsBytesSync();
 
-        this.state = LoadState.success;
-        if (this.state == LoadState.success) {
-          controller?.stateFalse();
-        }
+        // this.state = LoadState.success;
+        // if (this.state == LoadState.success) {
+        //   controller?.stateFalse();
+        // }
 
         PaintingBinding.instance!.instantiateImageCodec(imageBytes).then(
             (codec) {
