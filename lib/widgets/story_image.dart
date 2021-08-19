@@ -189,6 +189,7 @@ class StoryImageState extends State<StoryImage> {
   Widget getContentView() {
     switch (widget.imageLoader.state) {
       case LoadState.success:
+        widget.controller?.stateFalse();
         return RawImage(
           image: this.currentFrame,
           fit: widget.fit,
