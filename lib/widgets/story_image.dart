@@ -47,11 +47,12 @@ class ImageLoader {
         }
 
         final imageBytes = fileResponse.file.readAsBytesSync();
+        print('State is : ${this.state}');
 
-        // this.state = LoadState.success;
-        // if (this.state == LoadState.success) {
-        //   controller?.stateFalse();
-        // }
+        this.state = LoadState.success;
+        if (this.state == LoadState.success) {
+          controller?.stateFalse();
+        }
 
         PaintingBinding.instance!.instantiateImageCodec(imageBytes).then(
             (codec) {
@@ -189,7 +190,6 @@ class StoryImageState extends State<StoryImage> {
   Widget getContentView() {
     switch (widget.imageLoader.state) {
       case LoadState.success:
-        widget.controller?.stateFalse();
         return RawImage(
           image: this.currentFrame,
           fit: widget.fit,
