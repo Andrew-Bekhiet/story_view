@@ -274,6 +274,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   void _onComplete() {
     if (widget.onComplete != null) {
       widget.controller.pause();
+      setState(() {
+        index = 0;
+      });
       widget.onComplete!();
     }
 
@@ -444,6 +447,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                     if (index == widget.storyItems.length - 1) {
                       if (widget.onRightTap != null) {
                         widget.onRightTap!();
+                        setState(() {
+                          index = 0;
+                        });
                       }
                     }
                   }
@@ -494,7 +500,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 child: GestureDetector(
                   onTap: () {
                     widget.controller.previous();
-                     if (index ==0) {
+                    if (index == 0) {
                       if (widget.onLeftTap != null) {
                         widget.onLeftTap!();
                       }
